@@ -16,8 +16,8 @@ inline float noteToFreq(float note, uint8_t waveform) {
 inline void oscOn(Oscillator& osc, int8_t note, uint8_t velocity) {
   float v = velocityOn ? velocity/127. : 1;
   if (osc.note!=note) {
-    osc.wf1->frequency(noteToFreq(note,1));
-    osc.wf2->frequency(noteToFreq(note,2));
+    osc.wf1->frequency(noteToFreq(note+octave1,1));
+    osc.wf2->frequency(noteToFreq(note+octave2,2));
     notesAdd(notesOn,note);
     if (envOn && !osc.velocity) osc.env->noteOn();
     osc.wf1->amplitude(v*channelVolume*GAIN_OSC);
@@ -62,8 +62,8 @@ inline void allOff() {
 inline void updateFilterMode() {
   Oscillator *o=oscs,*end=oscs+NVOICES;
   do {
-    for (uint8_t fm=0; fm<FILTERMODE_N; ++fm) {
-      if (fm == filterMode) o->mix->gain(fm,filtAtt);
+    for (uint8_t fm=0; fm<3; ++fm) {
+      if (fm == filtermode) o->mix->gain(fm,filtAtt);
       else                  o->mix->gain(fm,0);
     }
   } while (++o < end);
@@ -103,6 +103,7 @@ inline void updateEnvelopeMode() {
     envmixer4.gain(i+2,noenv);
   }
 }
+
 
 void updateFlanger() {
   if (flangerOn) {
@@ -154,12 +155,11 @@ inline void updatePitch() {
 
 // LFO ////////////////////////////////
 inline void updateLFO1() { // LFO Pitch Rate/Level
-LFO_Pitch.begin(LFO1_Level,LFO1_Rate,currentLFOProgram1);
+LFO_Pitch.begin(LFO1_Level,LFO1_Rate,progs[currentLFOProgram1]);
 }
 
 inline void updateLFO2() { // LFO Filter Rate/Level
-LFO_Pitch.begin(LFO2_Level,LFO2_Rate,currentLFOProgram2);
-
+LFO_Filter.begin(LFO2_Level,LFO2_Rate,progs[currentLFOProgram2]);
 }
 inline void updatePWM() { // LFO Filter Rate/Level
 LFO_PWM.begin(1,LFO_PWM_Freq,WAVEFORM_SQUARE);
@@ -172,18 +172,17 @@ inline void updateVolume() {
     velocity = velocityOn ? o->velocity/127. : 1;
     o->wf1->amplitude(velocity*channelVolume*GAIN_OSC*currentLevel1);
     o->wf2->amplitude(velocity*channelVolume*GAIN_OSC*currentLevel2);
-    o->wfmix->gain(0,1);
-    o->wfmix->gain(1,1);
-    o->wfmix->gain(2,1);
   } while(++o < end);
 }
-
+inline void updateMasterVolume(){
+  sgtl5000_1.volume(channelVolume/2.);
+}
 inline void updatePan() {
   float left = panorama;
   float right = 1-panorama;
   for (uint8_t i=0; i<4; ++i) {
-    mixerL.gain(i,left/10);
-    mixerR.gain(i,right/10);
+    mixerL.gain(i,left);
+    mixerR.gain(i,right);
   }
 }
 inline void updateNoise(){ // Noise too loud, therefore up to 0.5 gain.
@@ -250,7 +249,7 @@ void resetAll() {
   polyOn     = true;
   omniOn     = false;
   velocityOn = true;  
-  filterMode     = FILTEROFF;
+  filtermode     = 0;
   sustainPressed = false;
   channelVolume  = 0.5;
   panorama       = 0.5;
@@ -270,11 +269,11 @@ void resetAll() {
   
   // LFOs
   LFO1_Level=0.5; //Pitch
-  LFO1_Rate=1;
+  LFO1_Rate=0;
   updateLFO1();
   
   LFO2_Level=0; //Filter
-  LFO2_Rate=1;
+  LFO2_Rate=0;
   updateLFO2();
 
   LFO_PWM_Freq=5; //PWM
@@ -298,27 +297,47 @@ void resetAll() {
   // MIXERS INITIALIZING//
   noisemixer.gain(0,0.3);
   noisemixer.gain(1,0.3);
+  pitchmixer.gain(0,0.1);
+  filtermixer.gain(0,1);
   
-  pwmmixer1.gain(0,1);
-  pwmmixer2.gain(0,1);
+  pwmmixer1.gain(0,0.5);
+  pwmmixer2.gain(0,0.5);
+
+  mixer9.gain(0,0.5);
+  mixer9.gain(1,0.5);
+  mixer9.gain(2,0.5);
+  mixer1.gain(0,0.5);
+  mixer10.gain(1,0.5);
+  mixer10.gain(2,0.5);
+  mixer11.gain(0,0.5);
+  mixer11.gain(1,0.5);
+  mixer11.gain(2,0.5);
+  mixer12.gain(0,0.5);
+  mixer12.gain(1,0.5);
+  mixer12.gain(2,0.5);
+  mixer13.gain(0,0.5);
+  mixer13.gain(1,0.5);
+  mixer13.gain(2,0.5);      
+  mixer14.gain(0,0.5);
+  mixer14.gain(1,0.5);
+  mixer14.gain(2,0.5);
+  mixer15.gain(0,0.5);
+  mixer15.gain(1,0.5);
+  mixer15.gain(2,0.5);
+        
   // FX
   flangerOn         = false;
   flangerOffset     = DELAY_LENGTH/4;
-  flangerDepth      = DELAY_LENGTH/16;
+  flangerDepth      = DELAY_LENGTH/4;
   flangerFreqCoarse = 0;
   flangerFreqFine   = .5;
-  updateFlanger();
+  flangerL.begin(delaylineL,DELAY_LENGTH,flangerOffset,flangerDepth,flangerFreqFine);
+  flangerR.begin(delaylineR,DELAY_LENGTH,flangerOffset,flangerDepth,flangerFreqFine);
+  
   // Chorus
   nvoices=1;
   updateChorus();
   
-  // portamento
-  portamentoOn   = false;
-  portamentoTime = 1000;
-  portamentoDir  = 0;
-  portamentoStep = 0;
-  portamentoPos  = -1;
-  updatePortamento();
 
 
 }

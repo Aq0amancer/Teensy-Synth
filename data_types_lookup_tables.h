@@ -17,8 +17,6 @@ struct Oscillator {
   uint8_t velocity;
 };
 
-
-
 #define NVOICES 8 // 8 voice polyphony, needs 8 waveforms, filters, mixers and envelopes
 Oscillator oscs[NVOICES] = {
   { &waveform1, &waveform2, &mixer9,&filter1, &mixer1, &envelope1, -1, 0 },
@@ -31,24 +29,12 @@ Oscillator oscs[NVOICES] = {
   { &waveform15, &waveform16,  &mixer16, &filter8, &mixer8, &envelope8, -1, 0 },
 };
 
-#define NPROGS 8
+#define NPROGS 4
 uint8_t progs[NPROGS] = {
-  WAVEFORM_SINE,
   WAVEFORM_SQUARE,
-  WAVEFORM_TRIANGLE,
+  WAVEFORM_SINE,
   WAVEFORM_SAWTOOTH,
-  WAVEFORM_SAWTOOTH_REVERSE,
-  WAVEFORM_PULSE,
-  WAVEFORM_SAMPLE_HOLD,
-  WAVEFORM_ARBITRARY,
-};
-
-enum FilterMode_t {
-  LOWPASS,
-  BANDPASS,
-  HIGHPASS,
-  FILTEROFF,
-  FILTERMODE_N,
+  WAVEFORM_TRIANGLE,
 };
 
 #endif /* DATATYPES_H */

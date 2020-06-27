@@ -88,7 +88,7 @@ void printInfo() {
   SYNTH_SERIAL.println(pitchBend);
   SYNTH_SERIAL.println();
   SYNTH_SERIAL.print("Filter Mode:          ");
-  SYNTH_SERIAL.println(filterMode);
+  SYNTH_SERIAL.println(filtermode);
   SYNTH_SERIAL.print("Filter Frequency:     ");
   SYNTH_SERIAL.println(filtFreq);
   SYNTH_SERIAL.print("Filter Resonance:     ");
@@ -281,7 +281,7 @@ void loop() {
 #endif
 
 checkMux(); //Update controls
-delay(5);
+delay(10);
 }
 
 void checkMux() {
@@ -290,7 +290,7 @@ void checkMux() {
   static int muxValues2[MnumControls] = {};
   static int muxValues3[MnumControls] = {};
   static int muxValues4[MnumControls] = {};
-
+  static int controlThresh=2;
   unsigned long currentMicros = micros();
   static unsigned long LFOtime = 0;
 
@@ -298,12 +298,12 @@ void checkMux() {
     LFOtime = currentMicros;
     
     int muxRead = analogRead(MXIN);
-    //int muxRead2 = analogRead(MXIN2);
-    //int muxRead3 = analogRead(MXIN3);
-    //int muxRead4 = analogRead(MXIN4);
+    int muxRead2 = analogRead(MXIN2);
+    int muxRead3 = analogRead(MXIN3);
+    int muxRead4 = analogRead(MXIN4);
 
     //SYNTH_SERIAL.println(muxInput);
-    if (muxRead > (muxValues[muxInput] + 7) || muxRead < (muxValues[muxInput] - 7)) {
+    if (muxRead > (muxValues[muxInput] + controlThresh) || muxRead < (muxValues[muxInput] - controlThresh)) {
       muxValues[muxInput] = muxRead;
       muxRead = (muxRead >> 3); //Change range to 0-127
       switch (muxInput) {
@@ -329,12 +329,12 @@ void checkMux() {
           OnControlChange(SYNTH_MIDICHANNEL, CC_Waveform2, muxRead);
           break;
         case 7:
-          OnControlChange(SYNTH_MIDICHANNEL, CC_Filter_Frequency, muxRead);
+          OnControlChange(SYNTH_MIDICHANNEL, CC_Pan, muxRead);
           break;         
       }
     }
-    /*
-    if (muxRead2 > (muxValues2[muxInput] + 7) || muxRead2 < (muxValues2[muxInput] - 7)) {
+    
+    if (muxRead2 > (muxValues2[muxInput] + controlThresh) || muxRead2 < (muxValues2[muxInput] - controlThresh)) {
       muxValues2[muxInput] = muxRead2;
       muxRead2 = (muxRead2 >> 3); //Change range to 0-127
       switch (muxInput) {
@@ -364,9 +364,9 @@ void checkMux() {
           break;
       }
     }
-    if (muxRead3 > (muxValues3[muxInput] + 7) || muxRead3 < (muxValues3[muxInput] - 7)) {
+    if (muxRead3 > (muxValues3[muxInput] + controlThresh) || muxRead3 < (muxValues3[muxInput] - controlThresh)) {
       muxValues3[muxInput] = muxRead3;
-      muxRead2 = (muxRead2 >> 3); //Change range to 0-127
+      muxRead3 = (muxRead3 >> 3); //Change range to 0-127
       switch (muxInput) {
         case 0:
           OnControlChange(SYNTH_MIDICHANNEL, CC_Flanger_Depth, muxRead3);
@@ -394,7 +394,7 @@ void checkMux() {
           break;
       }
     }
-    if (muxRead4 > (muxValues4[muxInput] + 7) || muxRead4 < (muxValues4[muxInput] - 7)) {
+    if (muxRead4 > (muxValues4[muxInput] + controlThresh) || muxRead4 < (muxValues4[muxInput] - controlThresh)) {
       muxValues4[muxInput] = muxRead4;
       muxRead4 = (muxRead4 >> 3); //Change range to 0-127
       switch (muxInput) {
@@ -424,7 +424,7 @@ void checkMux() {
           break;
       }
     }
-    */
+    
     muxInput++;
     if (muxInput >= MnumControls) muxInput = 0;
     if((muxInput % 2) > 0) { digitalWrite(MS0, HIGH); } else { digitalWrite(MS0, LOW); }

@@ -14,52 +14,13 @@ Oscillator* OnNoteOffReal(uint8_t channel, uint8_t note, uint8_t velocity, bool 
   if (sustainPressed && !ignoreSustain) return 0;
 
   Oscillator *o=oscs;
-  if (portamentoOn) {
-    if (o->note == note) {
-      if (lastNote != -1) {
-        notesDel(notesOn,note);
-        if (portamentoTime == 0) {
-          portamentoPos = lastNote;
-          portamentoDir = 0;
-        } else {
-          portamentoDir = lastNote > portamentoPos? 1 : -1;
-          portamentoStep = fabs(lastNote-portamentoPos)/(portamentoTime);
-        }
-        oscOn(*o, lastNote, velocity);
-      }
-      else 
-      {
-        oscOff(*o);
-        portamentoPos = -1;
-        portamentoDir = 0;
-      }
-    }
-    if (oscs->note == note) {
-      if (lastNote != -1) {
-        notesDel(notesOn,o->note);
-        oscOn(*o, lastNote, velocity);
-      } else {
-        oscOff(*o);
-      }
-    }
-  }
-  else if (polyOn) {
     Oscillator *end=oscs+NVOICES;
     do {
       if (o->note == note) break;
     } while (++o < end);
     if (o == end) return 0;
     oscOff(*o);
-  } else {
-    if (oscs->note == note) {
-      if (lastNote != -1) {
-        notesDel(notesOn,o->note);
-        oscOn(*o, lastNote, velocity);
-      } else {
-        oscOff(*o);
-      }
-    }
-  }
+
   
   return o;
 }
@@ -74,18 +35,6 @@ void OnNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   notesAdd(notesPressed,note);
 
   Oscillator *o=oscs;
-  if (portamentoOn) {
-    if (portamentoTime == 0 || portamentoPos < 0) {
-      portamentoPos = note;
-      portamentoDir = 0;
-    } else if (portamentoPos > -1) {
-      portamentoDir  = note > portamentoPos ? 1 : -1;
-      portamentoStep = fabs(note-portamentoPos)/(portamentoTime);
-    }
-    *notesOn = -1;
-    oscOn(*o, note, velocity);
-  }
-  else if (polyOn) {
     Oscillator *curOsc=0, *end=oscs+NVOICES;
     if (sustainPressed && notesFind(notesOn,note)) {
       do {
@@ -109,16 +58,10 @@ void OnNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
     }
     if (!curOsc) return;
     oscOn(*curOsc, note, velocity);
-  }
-  else 
-  {
-    *notesOn = -1;
-    oscOn(*o, note, velocity);
-  }
+
 
   return;
 }
-
 inline void OnNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
   OnNoteOffReal(channel,note,velocity,false);
 }
@@ -142,7 +85,6 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
   switch (control) {
 
-    
 //////////////////////// WAVEFORM SECTION /////////////////////////////////////////////////////////////////
 
   case CC_Waveform1: // Waveform OSC1
@@ -163,15 +105,16 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
   case CC_Octave1: // Octave OSC 1
         switch (value) {
         case 0:
-          octave1 = -24; // Pot min value = 2 octaves down
+          octave1 = 24; // Pot min value = 2 octaves down
           break;
-        case 4:
-          octave1 = 24; // Pot max value = 2 octaves up
+        case 127:
+          octave1 = -24; // Pot max value = 2 octaves up
           break;
         default:
-          octave1=map(value, 0, 127, -12, 12); // Map any value between the 2 octaves -12 to 12
+          octave1=map(value, 1, 126, 12, -12); // Map any value between the 2 octaves -12 to 12
           break;
       }
+
   case CC_PWM1: // Pulse Width Ammount OSC 1
     pwmmixer1.gain(0,value/127.);
     break;
@@ -194,15 +137,16 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
   case CC_Octave2: // Octave OSC2
         switch (value) {
         case 0:
-          octave2 = -24; // Pot min value = 2 octaves down
+          octave2 = 24; // Pot min value = 2 octaves down
           break;
-        case 4:
-          octave2 = 24; // Pot max value = 2 octaves up
+        case 127:
+          octave2 = -24; // Pot max value = 2 octaves up
           break;
         default:
-          octave2=map(value, 0, 127, -12, 12); // Map any value between the 2 octaves -12 to 12
+          octave2=map(value, 1, 126, 12, -12); // Map any value between the 2 octaves -12 to 12
           break;
       }
+
       
   case CC_PWM2: // Pulse Width OSC2
     pwmmixer2.gain(0,value/127.);
@@ -210,7 +154,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
 //////////////////////// LFO 1: Pitch /////////////////////////////////////////////////////////////////
     case CC_LFO_Level1: // LFO1 level 
-      LFO1_Level = map(value, 0, 127, 1, 100); // Level 0 - 100
+      LFO1_Level = 0.5-value/256.;
       updateLFO1();
       break;
     case CC_LFO_Waveform1: // LFO2 waveform
@@ -221,14 +165,16 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
       updateLFO1();
       break;
     case CC_LFO_Rate1: // LFO1 Rate
-      LFO1_Rate = map(value, 0, 127, 1, 30); // Rate 1 - 30 Hz
+      LFO1_Rate = map(value, 0, 127, 30, 0); // Rate 1 - 30 Hz
       updateLFO1();
       break;
       
 //////////////////// LFO 2: Filter ///////////////////////////////////////////
 
     case CC_LFO_Level2: // LFO2 Level 
-      LFO2_Level = map(value, 0, 127, 1, 100); // Level 0 - 100
+      LFO2_Level = 1-value/127.;
+      SYNTH_SERIAL.println((String) LFO2_Level);
+
       updateLFO2();
       break;
       
@@ -241,7 +187,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
       break;  
       
     case CC_LFO_Rate2: // LFO2 Rate
-      LFO2_Rate = map(value, 0, 127, 1, 30); // Rate 1 - 30 Hz
+      LFO2_Rate = map(value, 0, 127, 30, 0); // Rate 1 - 30 Hz
       updateLFO2();
       break;
 
@@ -249,7 +195,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
   case CC_Portamento: // portamento time
   {
-    if (value > 63) {
+    if (value < 63) {
       portamentoOn = true;
       float portamentoRange = portamentoStep*portamentoTime;
       portamentoTime = value*50;
@@ -261,23 +207,21 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     break;
   }
   case CC_Volume: // volume
-    channelVolume = value/127.;
-    updateVolume();
+    if (value==127){
+      allOff();
+    }
+    channelVolume = 1-value/127.;
+    updateMasterVolume();
     break;
   case CC_Pan: // PAN
-    panorama = value/127;
+    panorama = value/127.;
     updatePan();
     break;
    
   case CC_Chorus:
-    switch(value) {
-      case 0:
-        nvoices=0;
-        break;
-      default:
-        nvoices= map(value, 0, 127, 1, 10);
-        break;
-    }
+      nvoices= map(value, 0, 127, 5, 0);
+      //updateChorus();
+      break;
 /*
   case 9: // fix volume
     switch (value) {
@@ -300,19 +244,19 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
 //////////////// ENVELOPE ADSR/////////////////////////////////////////
   case CC_Attack: // attack
-    envAttack = value*envelopeMax/127.;
+    envAttack = envelopeMax-value*envelopeMax/127.;
     updateEnvelope();
     break;
   case CC_Decay: // decay
-    envDecay = value*envelopeMax/127.;
+    envDecay = envelopeMax-value*envelopeMax/127.;
     updateEnvelope();
     break;
   case CC_Sustain: // sustain
-    envSustain = value/127.;
+    envSustain = 1.00-value/127.;
     updateEnvelope();
     break;
   case CC_Release: // release
-    envRelease = value*envelopeMax/127.;
+    envRelease = envelopeMax-value*envelopeMax/127.;
     updateEnvelope();
     break;
     
@@ -321,25 +265,26 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     filtFreq = value/2.5*AUDIO_SAMPLE_RATE_EXACT/127.;
     updateFilter();
     break;
+    
   case CC_Filter_Resonance: // filter resonance
-    filtReso = value*4.1/127.+0.9;
+    filtReso = 5.0-value*4.1/127.+0.9;
     updateFilter();
+
     break;
+    
   case CC_Filter_Attenuation: // filter attenuation
     filtAtt = value/127.;
     updateFilterMode();
     break;
+    
   case CC_Filter_Mode: // filter mode
-    if (value < FILTERMODE_N) {
-      filterMode = FilterMode_t(value);
-    } else {
-      filterMode = FilterMode_t((filterMode+1)%FILTERMODE_N);
-    }
+    filtermode=map(value,0,127,0,2);
     updateFilterMode();
     break;
+
 ////////////////////////////////////////////////////////////////////////////
   case CC_PWM_Rate:
-    LFO_PWM_Freq=map(value, 0, 127, 20, 1000);
+    LFO_PWM_Freq=map(value, 0, 127, 20, 1);
     updatePWM();
     break;
   case CC_Envelope_Mode: // envelope mode
@@ -351,60 +296,36 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
   case CC_Flanger_On: // flanger toggle
     if (value > 63)
-        flangerOn = 3;
+        flangerOn = true;
     else
-        flangerOn = !flangerOn;
+        flangerOn = false;
     updateFlanger();
     break;
+    
   case CC_Flanger_Offset: // flanger offset
-    flangerOffset = int(value/127.*8)*DELAY_LENGTH/8;
+    flangerOffset = int(value/127.*2)*DELAY_LENGTH/8;
     updateFlanger();
     break;
   case CC_Flanger_Depth: // flanger depth
-    flangerDepth = int(value/127.*8)*DELAY_LENGTH/8;
+    flangerDepth = int(value/127)*DELAY_LENGTH/4;
     updateFlanger();
     break;
   case CC_Flanger_Fine: // flanger coarse frequency
-    flangerFreqCoarse = value/127.*10.;
+    flangerFreqCoarse = value/127.*3.;
     updateFlanger();
     break;
     
 ///////////// UNDEFINED ////////////////////////////////////////////////////////////////////
   case CC_Oscmix:
     currentLevel1=value/127.;
-    currentLevel2=1-value;
+    currentLevel2=1-currentLevel1;
     updateVolume();
     break;  
-/*
-  case CC_Poly_Mode: // poly mode
-    switch (value) {
-    case 0:
-      polyOn = true;
-      portamentoOn = false;
-      break;
-    case 1:
-      polyOn = false;
-      portamentoOn = false;
-      break;
-    case 2:
-      polyOn = false;
-      portamentoOn = true;
-      break;
-    default: // cycle POLY, MONO, PORTAMENTO
-    {
-      bool tmp = polyOn;
-      polyOn = portamentoOn;
-      portamentoOn = !(tmp || portamentoOn);
-      break;
-    }
-    }
-    updatePolyMode();
+
+  case CC_Detune:
+    detune=value/127;
     break;
-  
-  case CC_Pitch_Range: // pitch range in semitones
-    pitchScale = 12./value;
-    break;
-*/
+    
   case CC_Sustain_Pedal: // sustain/damper pedal
     if (value > 63) sustainPressed = true;
     else {
@@ -422,27 +343,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
   case 121: // controller reset
     resetAll();
     break;
-  case 123: // all notes off
-    allOff();
-    break;
-  case 124: // omni off
-    allOff();
-    omniOn = false;
-    break;
-  case 125: // omni on
-    allOff();
-    omniOn = true;
-    break;
-  case 126: // mono
-    polyOn = false;
-    portamentoOn = false;
-    updatePolyMode();
-    break;
-  case 127: // poly
-    polyOn = true;
-    portamentoOn = false;
-    updatePolyMode();
-    break;
+    
   default:
 #if SYNTH_DEBUG > 0
     SYNTH_SERIAL.print("Unhandled Control Change: channel ");
@@ -454,7 +355,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 #endif
     break;
   }    
-#if 1 //0
+#if SYNTH_DEBUG > 0 //0
   SYNTH_SERIAL.print("Control Change: channel ");
   SYNTH_SERIAL.print(channel);
   SYNTH_SERIAL.print(", control ");

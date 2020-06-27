@@ -60,24 +60,24 @@
 //MIDI
 #define CC_Sustain_Pedal 64//
 #define CC_Envelope_Mode 65 //
+
 // Mux Controls
 #define MnumControls 8 // Number of possible MUX controls per MUX (8 for CD4051)
 
-#define MS0 10  // 1st bit (1)
-#define MS1 11 // 2nd bit (2)
-#define MS2 9 // 3rd bit (4)
-#define MXIN A1 // Input MUX
-#define MXIN2 A2 // Input MUX
-#define MXIN3 A3 // Input MUX
-#define MXIN4 A4 // Input MUX
+#define MS0 9  // 1st bit (1)
+#define MS1 10 // 2nd bit (2)
+#define MS2 11 // 3rd bit (4)
+
+#define MXIN 14 // Input MUX
+#define MXIN2 15 // Input MUX
+#define MXIN3 16 // Input MUX
+#define MXIN4 17 // Input MUX
 
 ////////////////////////////////////////////////////////////
 
-#define SYNTH_DEBUG 2
+#define SYNTH_DEBUG 0
 // define MIDI channel
 #define SYNTH_MIDICHANNEL 1
-// inital poly mode (POLY, MONO or PORTAMENTO)
-#define SYNTH_INITIALMODE POLY
 // define tuning of A4 in Hz
 #define SYNTH_TUNING 440
 // gain at oscillator/filter input stage (1:1)
@@ -88,12 +88,13 @@
 //#define GAIN_POLY 1.
 #define GAIN_POLY 0.25
 // gain in final mixer stage for monophonic modes
-//#define GAIN_MONO 1.
-#define GAIN_MONO 0.25
 // define delay lines for modulation effects
-#define DELAY_LENGTH (16*AUDIO_BLOCK_SAMPLES)
+
+#define DELAY_LENGTH (12*AUDIO_BLOCK_SAMPLES)
 short delaylineL[DELAY_LENGTH];
 short delaylineR[DELAY_LENGTH];
+
+
 // audio memory
 #define AMEMORY 50
 
@@ -142,9 +143,10 @@ float pitchScale;
 int octCorr;
 int octCorr1;
 int octCorr2;
+float detune;
 
 // filter
-FilterMode_t filterMode;
+int filtermode;
 float filtFreq; // 20-AUDIO_SAMPLE_RATE_EXACT/2.5
 float filtReso; // 0.9-5.0
 float filtAtt;  // 0-1
