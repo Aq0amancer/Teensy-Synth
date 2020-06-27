@@ -75,7 +75,7 @@
 
 ////////////////////////////////////////////////////////////
 
-#define SYNTH_DEBUG 0
+#define SYNTH_DEBUG 1
 // define MIDI channel
 #define SYNTH_MIDICHANNEL 1
 // define tuning of A4 in Hz
@@ -90,13 +90,13 @@
 // gain in final mixer stage for monophonic modes
 // define delay lines for modulation effects
 
-#define DELAY_LENGTH (12*AUDIO_BLOCK_SAMPLES)
+#define DELAY_LENGTH (16*AUDIO_BLOCK_SAMPLES)
 short delaylineL[DELAY_LENGTH];
 short delaylineR[DELAY_LENGTH];
 
 
 // audio memory
-#define AMEMORY 50
+#define AMEMORY 100
 
 #include <MIDI.h>
 
@@ -108,23 +108,30 @@ short delaylineR[DELAY_LENGTH];
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 #endif
 
-float   masterVolume   = 0.5;
+float   masterVolume   = 1;
 
 // Waveforms
 uint8_t currentProgram1 = WAVEFORM_TRIANGLE; // OSC1 waveform
 uint8_t currentProgram2 = WAVEFORM_SINE; // OSC2 waveform
 int octave1; // OSC1 octave
 int octave2; // OSC2 octave
-int currentLevel1; //AMplitude OSC 1
-int currentLevel2; // Amplitude OSC 2
+float currentLevel1; //AMplitude OSC 1
+float currentLevel2; // Amplitude OSC 2
 
+//Bools
 bool  polyOn;
 bool  omniOn;
 bool  velocityOn;
-
 bool  sustainPressed;
+
 float channelVolume;
+
+// Panorama
 float panorama;
+float right; //right channel
+float left; // left channel
+
+//Pulse Width
 float pulseWidth1; // 0.05-0.95
 float pulseWidth2; // 0.05-0.95
 

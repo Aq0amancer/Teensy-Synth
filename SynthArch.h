@@ -7,11 +7,11 @@
 #include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
-AudioSynthWaveform       LFO_PWM; //xy=73.5,684
-AudioSynthWaveform       LFO_Pitch;      //xy=78,568.25
-AudioMixer4              pitchmixer; //xy=263,579
-AudioMixer4              pwmmixer1; //xy=263,671
-AudioMixer4              pwmmixer2; //xy=264,740
+AudioSynthWaveform       LFO_PWM; //xy=78.5,690
+AudioSynthWaveform       LFO_Pitch;      //xy=89,556.25
+AudioMixer4              pwmmixer2; //xy=264,738
+AudioMixer4              pitchmixer; //xy=265,571
+AudioMixer4              pwmmixer1; //xy=268,667
 AudioSynthNoiseWhite     noise1;         //xy=352,296
 AudioSynthNoisePink      pink1;          //xy=353,261
 AudioSynthWaveformModulated waveform3;   //xy=474.75000190734863,467.99999046325684
@@ -31,23 +31,23 @@ AudioSynthWaveformModulated waveform16;  //xy=481,922.25
 AudioSynthWaveformModulated waveform9;   //xy=482,678.75
 AudioSynthWaveformModulated waveform13;  //xy=481.5,819
 AudioMixer4              noisemixer; //xy=488,290
-AudioMixer4              mixer14;        //xy=631.75,793.5
-AudioMixer4              mixer15;        //xy=631.75,860.5
-AudioMixer4              mixer9;         //xy=633.75,410.5
-AudioMixer4              mixer10;        //xy=633.75,475.5
-AudioMixer4              mixer11;        //xy=633.75,540.5
-AudioMixer4              mixer16;        //xy=632.75,925.5
-AudioSynthWaveform       LFO_Filter; //xy=634,666
-AudioMixer4              mixer13;        //xy=634.75,723.5
-AudioMixer4              mixer12;        //xy=635.75,606.5
-AudioMixer4              filtermixer; //xy=776,674
+AudioMixer4              mixer14;        //xy=626.75,796.5
+AudioMixer4              mixer15;        //xy=626.75,863.5
+AudioMixer4              mixer9;         //xy=628.75,413.5
+AudioMixer4              mixer10;        //xy=628.75,478.5
+AudioMixer4              mixer11;        //xy=628.75,543.5
+AudioMixer4              mixer16;        //xy=627.75,928.5
+AudioSynthWaveform       LFO_Filter; //xy=629,669
+AudioMixer4              mixer13;        //xy=629.75,726.5
+AudioMixer4              mixer12;        //xy=630.75,609.5
+AudioMixer4              filtermixer; //xy=772,661
 AudioFilterStateVariable filter2;        //xy=931.2499961853027,477.4999985694885
 AudioFilterStateVariable filter4;        //xy=932.2499961853027,605.4999985694885
 AudioFilterStateVariable filter7;        //xy=932.2499961853027,805.4999985694885
 AudioFilterStateVariable filter3;        //xy=934.2499961853027,540.4999985694885
 AudioFilterStateVariable filter8;        //xy=933.2499961853027,871.4999985694885
-AudioFilterStateVariable filter5;        //xy=934.2499961853027,670.4999985694885
-AudioFilterStateVariable filter6;        //xy=934.2499961853027,734.4999985694885
+AudioFilterStateVariable filter5;        //xy=935.25,670.5
+AudioFilterStateVariable filter6;        //xy=935.25,738.5
 AudioFilterStateVariable filter1;        //xy=942.25,414.5
 AudioMixer4              mixer1;         //xy=1061.25,414.5
 AudioMixer4              mixer2;         //xy=1061.25,480.5
@@ -71,46 +71,44 @@ AudioMixer4              envmixer1;      //xy=1428.25,494.5
 AudioMixer4              envmixer3;      //xy=1428.25,666.5
 AudioMixer4              mixerL;         //xy=1641.2500038146973,523.5000114440918
 AudioMixer4              mixerR;         //xy=1647.25,657.5
-AudioEffectFlange        flangerL;       //xy=1823.25,520.5
-AudioEffectFlange        flangerR;       //xy=1824.25,661.5
-AudioEffectChorus        chorusL;        //xy=1992,521
-AudioEffectChorus        chorusR; //xy=2003,661
+AudioEffectFlange        flangerR;       //xy=1847.25,656.5
+AudioEffectFlange        flangerL;       //xy=1848.25,525.5
 AudioOutputI2S           i2s1;           //xy=2173.25,575.5
 AudioConnection          patchCord1(LFO_PWM, 0, pwmmixer2, 0);
 AudioConnection          patchCord2(LFO_PWM, 0, pwmmixer1, 0);
 AudioConnection          patchCord3(LFO_Pitch, 0, pitchmixer, 0);
-AudioConnection          patchCord4(pitchmixer, 0, waveform1, 0);
-AudioConnection          patchCord5(pitchmixer, 0, waveform2, 0);
-AudioConnection          patchCord6(pitchmixer, 0, waveform3, 0);
-AudioConnection          patchCord7(pitchmixer, 0, waveform4, 0);
-AudioConnection          patchCord8(pitchmixer, 0, waveform5, 0);
-AudioConnection          patchCord9(pitchmixer, 0, waveform6, 0);
-AudioConnection          patchCord10(pitchmixer, 0, waveform7, 0);
-AudioConnection          patchCord11(pitchmixer, 0, waveform8, 0);
-AudioConnection          patchCord12(pitchmixer, 0, waveform9, 0);
-AudioConnection          patchCord13(pitchmixer, 0, waveform10, 0);
-AudioConnection          patchCord14(pitchmixer, 0, waveform11, 0);
-AudioConnection          patchCord15(pitchmixer, 0, waveform12, 0);
-AudioConnection          patchCord16(pitchmixer, 0, waveform14, 0);
-AudioConnection          patchCord17(pitchmixer, 0, waveform13, 0);
-AudioConnection          patchCord18(pitchmixer, 0, waveform15, 0);
-AudioConnection          patchCord19(pitchmixer, 0, waveform16, 0);
-AudioConnection          patchCord20(pwmmixer1, 0, waveform1, 1);
-AudioConnection          patchCord21(pwmmixer1, 0, waveform3, 1);
-AudioConnection          patchCord22(pwmmixer1, 0, waveform5, 1);
-AudioConnection          patchCord23(pwmmixer1, 0, waveform7, 1);
-AudioConnection          patchCord24(pwmmixer1, 0, waveform9, 1);
-AudioConnection          patchCord25(pwmmixer1, 0, waveform11, 1);
-AudioConnection          patchCord26(pwmmixer1, 0, waveform13, 1);
-AudioConnection          patchCord27(pwmmixer1, 0, waveform15, 1);
-AudioConnection          patchCord28(pwmmixer2, 0, waveform2, 1);
-AudioConnection          patchCord29(pwmmixer2, 0, waveform4, 1);
-AudioConnection          patchCord30(pwmmixer2, 0, waveform6, 1);
-AudioConnection          patchCord31(pwmmixer2, 0, waveform8, 1);
-AudioConnection          patchCord32(pwmmixer2, 0, waveform10, 1);
-AudioConnection          patchCord33(pwmmixer2, 0, waveform12, 1);
-AudioConnection          patchCord34(pwmmixer2, 0, waveform14, 1);
-AudioConnection          patchCord35(pwmmixer2, 0, waveform16, 1);
+AudioConnection          patchCord4(pwmmixer2, 0, waveform2, 1);
+AudioConnection          patchCord5(pwmmixer2, 0, waveform4, 1);
+AudioConnection          patchCord6(pwmmixer2, 0, waveform6, 1);
+AudioConnection          patchCord7(pwmmixer2, 0, waveform8, 1);
+AudioConnection          patchCord8(pwmmixer2, 0, waveform10, 1);
+AudioConnection          patchCord9(pwmmixer2, 0, waveform12, 1);
+AudioConnection          patchCord10(pwmmixer2, 0, waveform14, 1);
+AudioConnection          patchCord11(pwmmixer2, 0, waveform16, 1);
+AudioConnection          patchCord12(pitchmixer, 0, waveform1, 0);
+AudioConnection          patchCord13(pitchmixer, 0, waveform2, 0);
+AudioConnection          patchCord14(pitchmixer, 0, waveform3, 0);
+AudioConnection          patchCord15(pitchmixer, 0, waveform4, 0);
+AudioConnection          patchCord16(pitchmixer, 0, waveform5, 0);
+AudioConnection          patchCord17(pitchmixer, 0, waveform6, 0);
+AudioConnection          patchCord18(pitchmixer, 0, waveform7, 0);
+AudioConnection          patchCord19(pitchmixer, 0, waveform8, 0);
+AudioConnection          patchCord20(pitchmixer, 0, waveform9, 0);
+AudioConnection          patchCord21(pitchmixer, 0, waveform10, 0);
+AudioConnection          patchCord22(pitchmixer, 0, waveform11, 0);
+AudioConnection          patchCord23(pitchmixer, 0, waveform12, 0);
+AudioConnection          patchCord24(pitchmixer, 0, waveform14, 0);
+AudioConnection          patchCord25(pitchmixer, 0, waveform13, 0);
+AudioConnection          patchCord26(pitchmixer, 0, waveform15, 0);
+AudioConnection          patchCord27(pitchmixer, 0, waveform16, 0);
+AudioConnection          patchCord28(pwmmixer1, 0, waveform1, 1);
+AudioConnection          patchCord29(pwmmixer1, 0, waveform3, 1);
+AudioConnection          patchCord30(pwmmixer1, 0, waveform5, 1);
+AudioConnection          patchCord31(pwmmixer1, 0, waveform7, 1);
+AudioConnection          patchCord32(pwmmixer1, 0, waveform9, 1);
+AudioConnection          patchCord33(pwmmixer1, 0, waveform11, 1);
+AudioConnection          patchCord34(pwmmixer1, 0, waveform13, 1);
+AudioConnection          patchCord35(pwmmixer1, 0, waveform15, 1);
 AudioConnection          patchCord36(noise1, 0, noisemixer, 1);
 AudioConnection          patchCord37(pink1, 0, noisemixer, 0);
 AudioConnection          patchCord38(waveform3, 0, mixer10, 0);
@@ -212,12 +210,11 @@ AudioConnection          patchCord133(envmixer3, 0, mixerL, 2);
 AudioConnection          patchCord134(envmixer3, 0, mixerR, 2);
 AudioConnection          patchCord135(mixerL, flangerL);
 AudioConnection          patchCord136(mixerR, flangerR);
-AudioConnection          patchCord137(flangerL, chorusL);
-AudioConnection          patchCord138(flangerR, chorusR);
-AudioConnection          patchCord139(chorusL, 0, i2s1, 0);
-AudioConnection          patchCord140(chorusR, 0, i2s1, 1);
+AudioConnection          patchCord137(flangerR, 0, i2s1, 1);
+AudioConnection          patchCord138(flangerL, 0, i2s1, 0);
 AudioControlSGTL5000     sgtl5000_1;     //xy=760.5,282.49998474121094
 // GUItool: end automatically generated code
+
 
 
 

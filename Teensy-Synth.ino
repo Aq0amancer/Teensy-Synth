@@ -216,24 +216,7 @@ void setup() {
   }
 
   resetAll();
-  flangerL.begin(delaylineL,DELAY_LENGTH,FLANGE_DELAY_PASSTHRU,0,0);
-  flangerR.begin(delaylineR,DELAY_LENGTH,FLANGE_DELAY_PASSTHRU,0,0);
   
-  
-#ifdef USB_MIDI
-  // see arduino/hardware/teensy/avr/libraries/USBHost_t36/USBHost_t36.h
-  usbMIDI.setHandleNoteOff(OnNoteOff);
-  usbMIDI.setHandleNoteOn(OnNoteOn);
-  usbMIDI.setHandleVelocityChange(OnAfterTouchPoly);
-  usbMIDI.setHandleControlChange(OnControlChange);
-  usbMIDI.setHandlePitchChange(OnPitchChange);
-  usbMIDI.setHandleProgramChange(OnProgramChange);
-  usbMIDI.setHandleAfterTouch(OnAfterTouch);
-  usbMIDI.setHandleSysEx(OnSysEx);
-  //usbMIDI.setHandleRealTimeSystem(OnRealTimeSystem);
-  //usbMIDI.setHandleTimeCodeQuarterFrame(OnTimeCodeQFrame);
-#else
-  // see arduino/hardware/teensy/avr/libraries/MIDI/src/MIDI.h
   MIDI.begin();
   MIDI.setHandleNoteOff(OnNoteOff);
   MIDI.setHandleNoteOn(OnNoteOn);
@@ -241,15 +224,9 @@ void setup() {
   MIDI.setHandleControlChange(OnControlChange);
   MIDI.setHandlePitchBend(OnPitchChange);
   MIDI.setHandleAfterTouchChannel(OnAfterTouch);
-  // the following functions need a different callback signature but they are
-  // not used anyways, so...
-  //MIDI.setHandleSystemExclusive(OnSysEx);
-  //MIDI.setHandleTimeCodeQuarterFrame(OnTimeCodeQFrame);
-#endif
  
   delay(1000);
 
-#if SYNTH_DEBUG > 0
   SYNTH_SERIAL.println();
   SYNTH_SERIAL.println("TeensySynth v0.1");
 #ifdef USB_MIDI
@@ -257,22 +234,13 @@ void setup() {
 #else
   SYNTH_SERIAL.println("UART_MIDI enabled");
 #endif // USB_MIDI
-#endif // SYNTH_DEBUG
-
 
 }
 
 /////////////////////// LOOP ////////////////////////////////////////////////////
 
 void loop() {
-#ifdef USB_MIDI
-  usbMIDI.read();
-#else
   MIDI.read();
-#endif
-  //updateMasterVolume();
-  updatePortamento();
-  
 
 #if SYNTH_DEBUG > 0
   performanceCheck();
@@ -281,7 +249,7 @@ void loop() {
 #endif
 
 checkMux(); //Update controls
-delay(10);
+//delay(10);
 }
 
 void checkMux() {

@@ -20,8 +20,8 @@ inline void oscOn(Oscillator& osc, int8_t note, uint8_t velocity) {
     osc.wf2->frequency(noteToFreq(note+octave2,2));
     notesAdd(notesOn,note);
     if (envOn && !osc.velocity) osc.env->noteOn();
-    osc.wf1->amplitude(v*channelVolume*GAIN_OSC);
-    osc.wf2->amplitude(v*channelVolume*GAIN_OSC);
+    osc.wf1->amplitude(v*channelVolume*GAIN_OSC*currentLevel1);
+    osc.wf2->amplitude(v*channelVolume*GAIN_OSC*currentLevel2);
     osc.velocity = velocity;
     osc.note = note;
   } else if (velocity > osc.velocity) {
@@ -104,14 +104,13 @@ inline void updateEnvelopeMode() {
   }
 }
 
-
 void updateFlanger() {
   if (flangerOn) {
-    AudioNoInterrupts();
+    //AudioNoInterrupts();
     flangerL.voices(flangerOffset,flangerDepth,flangerFreqCoarse+flangerFreqFine);
     flangerR.voices(flangerOffset,flangerDepth,flangerFreqCoarse+flangerFreqFine);
-    AudioInterrupts();
-#if SYNTH_DEBUG > 0
+    //AudioInterrupts();
+#if SYNTH_DEBUG > 1
     SYNTH_SERIAL.print("Flanger: offset=");
     SYNTH_SERIAL.print(flangerOffset);
     SYNTH_SERIAL.print(", depth=");
@@ -148,8 +147,8 @@ inline void updatePitch() {
   Oscillator *o=oscs,*end=oscs+NVOICES;
   do {
     if (o->note < 0) continue;
-    o->wf1->frequency(noteToFreq(o->note, 1));
-    o->wf2->frequency(noteToFreq(o->note, 2));
+    o->wf1->frequency(noteToFreq(o->note+octave1, 1));
+    o->wf2->frequency(noteToFreq(o->note+octave2, 2));
   } while(++o < end);
 }
 
@@ -178,26 +177,29 @@ inline void updateMasterVolume(){
   sgtl5000_1.volume(channelVolume/2.);
 }
 inline void updatePan() {
-  float left = panorama;
-  float right = 1-panorama;
   for (uint8_t i=0; i<4; ++i) {
     mixerL.gain(i,left);
     mixerR.gain(i,right);
   }
 }
 inline void updateNoise(){ // Noise too loud, therefore up to 0.5 gain.
-    if (noise < 0.5){
-          noise1.amplitude(noise);
+    if (noise > 0.6){
+          noise1.amplitude(noise-0.6);
           pink1.amplitude(0);
+
+    }
+    else if (noise < 0.4) {
+          noise1.amplitude(0);
+          pink1.amplitude(0.4-noise);
     }
     else{
           noise1.amplitude(0);
-          pink1.amplitude(noise);
+          pink1.amplitude(0);      
     }
 }
 inline void updateChorus() {
-  chorusL.begin(delaylineL,DELAY_LENGTH,nvoices);
-  chorusR.begin(delaylineR,DELAY_LENGTH,nvoices);
+  //chorusL.begin(delaylineL,DELAY_LENGTH,nvoices);
+  //chorusR.begin(delaylineR,DELAY_LENGTH,nvoices);
 }
 /*
 inline void updateMasterVolume() {
@@ -249,8 +251,10 @@ void resetAll() {
   polyOn     = true;
   omniOn     = false;
   velocityOn = true;  
-  filtermode     = 0;
+  portamentoOn = false;
   sustainPressed = false;
+  
+  filtermode     = 0;
   channelVolume  = 0.5;
   panorama       = 0.5;
   //pulseWidth     = 0.5;
@@ -297,8 +301,9 @@ void resetAll() {
   // MIXERS INITIALIZING//
   noisemixer.gain(0,0.3);
   noisemixer.gain(1,0.3);
+  
   pitchmixer.gain(0,0.1);
-  filtermixer.gain(0,1);
+  filtermixer.gain(0,0.5);
   
   pwmmixer1.gain(0,0.5);
   pwmmixer2.gain(0,0.5);
@@ -331,13 +336,14 @@ void resetAll() {
   flangerDepth      = DELAY_LENGTH/4;
   flangerFreqCoarse = 0;
   flangerFreqFine   = .5;
+  
   flangerL.begin(delaylineL,DELAY_LENGTH,flangerOffset,flangerDepth,flangerFreqFine);
   flangerR.begin(delaylineR,DELAY_LENGTH,flangerOffset,flangerDepth,flangerFreqFine);
   
   // Chorus
-  nvoices=1;
-  updateChorus();
-  
+  //nvoices=1;
+  //updateChorus();
+
 
 
 }

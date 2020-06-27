@@ -14,13 +14,52 @@ Oscillator* OnNoteOffReal(uint8_t channel, uint8_t note, uint8_t velocity, bool 
   if (sustainPressed && !ignoreSustain) return 0;
 
   Oscillator *o=oscs;
+  if (portamentoOn) {
+    if (o->note == note) {
+      if (lastNote != -1) {
+        notesDel(notesOn,note);
+        if (portamentoTime == 0) {
+          portamentoPos = lastNote;
+          portamentoDir = 0;
+        } else {
+          portamentoDir = lastNote > portamentoPos? 1 : -1;
+          portamentoStep = fabs(lastNote-portamentoPos)/(portamentoTime);
+        }
+        oscOn(*o, lastNote, velocity);
+      }
+      else 
+      {
+        oscOff(*o);
+        portamentoPos = -1;
+        portamentoDir = 0;
+      }
+    }
+    if (oscs->note == note) {
+      if (lastNote != -1) {
+        notesDel(notesOn,o->note);
+        oscOn(*o, lastNote, velocity);
+      } else {
+        oscOff(*o);
+      }
+    }
+  }
+  else if (polyOn) {
     Oscillator *end=oscs+NVOICES;
     do {
       if (o->note == note) break;
     } while (++o < end);
     if (o == end) return 0;
     oscOff(*o);
-
+  } else {
+    if (oscs->note == note) {
+      if (lastNote != -1) {
+        notesDel(notesOn,o->note);
+        oscOn(*o, lastNote, velocity);
+      } else {
+        oscOff(*o);
+      }
+    }
+  }
   
   return o;
 }
@@ -63,7 +102,7 @@ void OnNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   return;
 }
 inline void OnNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
-  OnNoteOffReal(channel,note,velocity,false);
+  OnNoteOffReal(channel,note,velocity,true);
 }
 
 void OnAfterTouchPoly(uint8_t channel, uint8_t note, uint8_t value) {
@@ -172,8 +211,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 //////////////////// LFO 2: Filter ///////////////////////////////////////////
 
     case CC_LFO_Level2: // LFO2 Level 
-      LFO2_Level = 1-value/127.;
-      SYNTH_SERIAL.println((String) LFO2_Level);
+      LFO2_Level = 0.5-value/256.;
 
       updateLFO2();
       break;
@@ -214,12 +252,19 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     updateMasterVolume();
     break;
   case CC_Pan: // PAN
-    panorama = value/127.;
+    if (value>64){
+      left = 1.00;
+      right = (127-value)/64.;
+    }
+    else{
+      right = 1.00;
+      left = value/64.; 
+    }
     updatePan();
     break;
    
   case CC_Chorus:
-      nvoices= map(value, 0, 127, 5, 0);
+      //nvoices= map(value, 0, 127, 3, 1);
       //updateChorus();
       break;
 /*
@@ -273,7 +318,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     break;
     
   case CC_Filter_Attenuation: // filter attenuation
-    filtAtt = value/127.;
+    filtAtt = 1.00-value/127.;
     updateFilterMode();
     break;
     
@@ -303,23 +348,31 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     break;
     
   case CC_Flanger_Offset: // flanger offset
-    flangerOffset = int(value/127.*2)*DELAY_LENGTH/8;
+    flangerOffset = DELAY_LENGTH/8;
     updateFlanger();
     break;
   case CC_Flanger_Depth: // flanger depth
-    flangerDepth = int(value/127)*DELAY_LENGTH/4;
+    flangerDepth = DELAY_LENGTH/8;
     updateFlanger();
     break;
   case CC_Flanger_Fine: // flanger coarse frequency
-    flangerFreqCoarse = value/127.*3.;
+    flangerFreqCoarse = value/127.;
     updateFlanger();
     break;
     
 ///////////// UNDEFINED ////////////////////////////////////////////////////////////////////
   case CC_Oscmix:
-    currentLevel1=value/127.;
-    currentLevel2=1-currentLevel1;
+    if (value>64){
+      currentLevel1 = 1.00;
+      currentLevel2 = (127-value)/64.;
+    }
+    else{
+      currentLevel2 = 1.00;
+      currentLevel1 = value/64.; 
+    }
     updateVolume();
+
+
     break;  
 
   case CC_Detune:
@@ -327,7 +380,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     break;
     
   case CC_Sustain_Pedal: // sustain/damper pedal
-    if (value > 63) sustainPressed = true;
+    if (value > 63) sustainPressed = false;
     else {
       sustainPressed = false;
       Oscillator *o=oscs, *end=oscs+NVOICES;
@@ -355,7 +408,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 #endif
     break;
   }    
-#if SYNTH_DEBUG > 0 //0
+#if SYNTH_DEBUG > 1 //0
   SYNTH_SERIAL.print("Control Change: channel ");
   SYNTH_SERIAL.print(channel);
   SYNTH_SERIAL.print(", control ");
