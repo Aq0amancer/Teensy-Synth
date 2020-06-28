@@ -127,10 +127,13 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 //////////////////////// WAVEFORM SECTION /////////////////////////////////////////////////////////////////
 
   case CC_Waveform1: // Waveform OSC1
-    if (value <= 32) currentProgram1 = 0;
-    else if (value > 32 && value <= 64) currentProgram1 = 1;
-    else if (value > 64 && value <= 96) currentProgram1 = 2;
-    else if (value > 96 && value <= 127) currentProgram1 = 3;
+    if (value <= 18) currentProgram1 = 0;
+    else if (value > 18 && value <= 36) currentProgram1 = 1;
+    else if (value > 36 && value <= 54) currentProgram1 = 2;
+    else if (value > 54 && value <= 72) currentProgram1 = 3;
+    else if (value > 72 && value <= 90) currentProgram1 = 4;    
+    else if (value > 90 && value <= 108) currentProgram1 = 5;    
+    else if (value > 108 && value <= 127) currentProgram1 = 6;    
     updateWaveform1();
     
     #if SYNTH_DEBUG > 1
@@ -155,14 +158,19 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
       }
 
   case CC_PWM1: // Pulse Width Ammount OSC 1
-    pwmmixer1.gain(0,value/127.);
+    gain_pwm1 = 1.0 - value/127.;
+    pwmmixer1.gain(0,gain_pwm1);
+    //SYNTH_SERIAL.println((String) "PWM1: " + gain_pwm1);
     break;
   
   case CC_Waveform2: // Waveform OSC2
-    if (value <= 32) currentProgram2 = 0;
-    else if (value > 32 && value <= 64) currentProgram2 = 1;
-    else if (value > 64 && value <= 96) currentProgram2 = 2;
-    else if (value > 96 && value <= 127) currentProgram2 = 3;
+    if (value <= 18) currentProgram2 = 0;
+    else if (value > 18 && value <= 36) currentProgram2 = 1;
+    else if (value > 36 && value <= 54) currentProgram2 = 2;
+    else if (value > 54 && value <= 72) currentProgram2 = 3;
+    else if (value > 72 && value <= 90) currentProgram2 = 4;    
+    else if (value > 90 && value <= 108) currentProgram2 = 5;    
+    else if (value > 108 && value <= 127) currentProgram2 = 6;    
     updateWaveform2();
     
     #if SYNTH_DEBUG > 1
@@ -188,7 +196,9 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
       
   case CC_PWM2: // Pulse Width OSC2
-    pwmmixer2.gain(0,value/127.);
+    gain_pwm2 = 1.00 - value/127.;
+    pwmmixer2.gain(0,gain_pwm2);
+        SYNTH_SERIAL.println((String) "PWM2: " + gain_pwm2);
     break;
 
 //////////////////////// LFO 1: Pitch /////////////////////////////////////////////////////////////////
@@ -307,7 +317,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     
 //////////////// FILTER ///////////////////////////////////////////
   case CC_Filter_Frequency: // filter frequency
-    filtFreq = value/2.5*AUDIO_SAMPLE_RATE_EXACT/127.;
+    filtFreq = value/5.0*AUDIO_SAMPLE_RATE_EXACT/127.;
     updateFilter();
     break;
     
@@ -329,9 +339,10 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 
 ////////////////////////////////////////////////////////////////////////////
   case CC_PWM_Rate:
-    LFO_PWM_Freq=map(value, 0, 127, 20, 1);
+    LFO_PWM_Freq=2.00-value/64.;
     updatePWM();
     break;
+    
   case CC_Envelope_Mode: // envelope mode
     allOff();
     envOn = !envOn;
@@ -348,11 +359,11 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
     break;
     
   case CC_Flanger_Offset: // flanger offset
-    flangerOffset = DELAY_LENGTH/8;
+    flangerOffset = DELAY_LENGTH/(4*map(value,0,127,4,1));
     updateFlanger();
     break;
   case CC_Flanger_Depth: // flanger depth
-    flangerDepth = DELAY_LENGTH/8;
+    flangerDepth = DELAY_LENGTH/(4*map(value,0,127,4,1));
     updateFlanger();
     break;
   case CC_Flanger_Fine: // flanger coarse frequency
@@ -371,12 +382,10 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
       currentLevel1 = value/64.; 
     }
     updateVolume();
-
-
     break;  
 
   case CC_Detune:
-    detune=value/127;
+    detune=value/20000.;
     break;
     
   case CC_Sustain_Pedal: // sustain/damper pedal

@@ -140,17 +140,21 @@ uint8_t currentLFOProgram1 = WAVEFORM_SQUARE;
 uint8_t currentLFOProgram2 = WAVEFORM_TRIANGLE;
 float LFO1_Level;
 float LFO2_Level;
+float LFO3_Level;
+
 float LFO1_Rate;
 float LFO2_Rate;
 
 float LFO_PWM_Freq;
+float gain_pwm1;
+float gain_pwm2;
 
 float pitchBend;  // -1/+1 oct
 float pitchScale;
 int octCorr;
 int octCorr1;
 int octCorr2;
-float detune;
+float detune; //Up to 1% detune
 
 // filter
 int filtermode;

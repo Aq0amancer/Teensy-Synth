@@ -258,7 +258,7 @@ void checkMux() {
   static int muxValues2[MnumControls] = {};
   static int muxValues3[MnumControls] = {};
   static int muxValues4[MnumControls] = {};
-  static int controlThresh=2;
+  static int controlThresh= 7;
   unsigned long currentMicros = micros();
   static unsigned long LFOtime = 0;
 

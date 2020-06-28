@@ -29,12 +29,16 @@ Oscillator oscs[NVOICES] = {
   { &waveform15, &waveform16,  &mixer16, &filter8, &mixer8, &envelope8, -1, 0 },
 };
 
-#define NPROGS 4
+#define NPROGS 8
 uint8_t progs[NPROGS] = {
   WAVEFORM_SQUARE,
   WAVEFORM_SINE,
   WAVEFORM_SAWTOOTH,
   WAVEFORM_TRIANGLE,
+  WAVEFORM_ARBITRARY,
+  WAVEFORM_SAWTOOTH_REVERSE,
+  WAVEFORM_PULSE,
+  WAVEFORM_SAMPLE_HOLD
 };
 
 #endif /* DATATYPES_H */

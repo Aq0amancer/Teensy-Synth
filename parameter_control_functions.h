@@ -17,7 +17,7 @@ inline void oscOn(Oscillator& osc, int8_t note, uint8_t velocity) {
   float v = velocityOn ? velocity/127. : 1;
   if (osc.note!=note) {
     osc.wf1->frequency(noteToFreq(note+octave1,1));
-    osc.wf2->frequency(noteToFreq(note+octave2,2));
+    osc.wf2->frequency(noteToFreq((float)(note+octave2)*(1.00-detune),2));
     notesAdd(notesOn,note);
     if (envOn && !osc.velocity) osc.env->noteOn();
     osc.wf1->amplitude(v*channelVolume*GAIN_OSC*currentLevel1);
@@ -161,7 +161,8 @@ inline void updateLFO2() { // LFO Filter Rate/Level
 LFO_Filter.begin(LFO2_Level,LFO2_Rate,progs[currentLFOProgram2]);
 }
 inline void updatePWM() { // LFO Filter Rate/Level
-LFO_PWM.begin(1,LFO_PWM_Freq,WAVEFORM_SQUARE);
+LFO_PWM.amplitude(LFO3_Level);
+LFO_PWM.frequency(LFO_PWM_Freq);
 }
 inline void updateVolume() {
   Oscillator *o=oscs,*end=oscs+NVOICES;
@@ -279,9 +280,10 @@ void resetAll() {
   LFO2_Level=0; //Filter
   LFO2_Rate=0;
   updateLFO2();
-
-  LFO_PWM_Freq=5; //PWM
-  updatePWM();
+  
+  LFO3_Level=0.5;
+  LFO_PWM_Freq=1; //PWM
+  LFO_PWM.begin(LFO3_Level,LFO_PWM_Freq,WAVEFORM_SINE);
   
   // filter
   filtFreq = 15000.;
@@ -305,8 +307,8 @@ void resetAll() {
   pitchmixer.gain(0,0.1);
   filtermixer.gain(0,0.5);
   
-  pwmmixer1.gain(0,0.5);
-  pwmmixer2.gain(0,0.5);
+  pwmmixer1.gain(0,0);
+  pwmmixer2.gain(0,0);
 
   mixer9.gain(0,0.5);
   mixer9.gain(1,0.5);
