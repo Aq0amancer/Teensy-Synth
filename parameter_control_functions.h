@@ -21,7 +21,9 @@ inline void oscOn(Oscillator& osc, int8_t note, uint8_t velocity) {
     notesAdd(notesOn,note);
     if (envOn && !osc.velocity) osc.env->noteOn();
     osc.wf1->amplitude(v*channelVolume*GAIN_OSC*currentLevel1);
+    SYNTH_SERIAL.println((String) (v*channelVolume*GAIN_OSC*currentLevel1));
     osc.wf2->amplitude(v*channelVolume*GAIN_OSC*currentLevel2);
+    SYNTH_SERIAL.println((String) (v*channelVolume*GAIN_OSC*currentLevel2));
     osc.velocity = velocity;
     osc.note = note;
   } else if (velocity > osc.velocity) {
@@ -313,7 +315,7 @@ void resetAll() {
   mixer9.gain(0,0.5);
   mixer9.gain(1,0.5);
   mixer9.gain(2,0.5);
-  mixer1.gain(0,0.5);
+  mixer10.gain(0,0.5);
   mixer10.gain(1,0.5);
   mixer10.gain(2,0.5);
   mixer11.gain(0,0.5);

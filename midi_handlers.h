@@ -374,11 +374,12 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
 ///////////// UNDEFINED ////////////////////////////////////////////////////////////////////
   case CC_Oscmix:
     if (value>64){
-      currentLevel1 = 1.00;
-      currentLevel2 = (127-value)/64.;
+      currentLevel1 = 1.0;
+      currentLevel2 = (127.-value)/64.;
+
     }
     else{
-      currentLevel2 = 1.00;
+      currentLevel2 = 1.0;
       currentLevel1 = value/64.; 
     }
     updateVolume();

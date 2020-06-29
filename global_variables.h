@@ -82,11 +82,11 @@
 #define SYNTH_TUNING 440
 // gain at oscillator/filter input stage (1:1)
 // keep low so filter does not saturate with resonance
-#define GAIN_OSC 0.25
+#define GAIN_OSC 0.5
 // gain in final mixer stage for polyphonic mode (4:1)
 // (0.25 is the safe value but larger sounds better :) )
 //#define GAIN_POLY 1.
-#define GAIN_POLY 0.25
+#define GAIN_POLY 0.1
 // gain in final mixer stage for monophonic modes
 // define delay lines for modulation effects
 
