@@ -198,7 +198,6 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
   case CC_PWM2: // Pulse Width OSC2
     gain_pwm2 = 1.00 - value/127.;
     pwmmixer2.gain(0,gain_pwm2);
-        SYNTH_SERIAL.println((String) "PWM2: " + gain_pwm2);
     break;
 
 //////////////////////// LFO 1: Pitch /////////////////////////////////////////////////////////////////
@@ -214,7 +213,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
       updateLFO1();
       break;
     case CC_LFO_Rate1: // LFO1 Rate
-      LFO1_Rate = map(value, 0, 127, 30, 0); // Rate 1 - 30 Hz
+      LFO1_Rate = value/32.; // Rate 1 - 30 Hz
       updateLFO1();
       break;
       
@@ -235,7 +234,7 @@ void OnControlChange(uint8_t channel, uint8_t control, uint8_t value) {
       break;  
       
     case CC_LFO_Rate2: // LFO2 Rate
-      LFO2_Rate = map(value, 0, 127, 30, 0); // Rate 1 - 30 Hz
+      LFO2_Rate = value/8.; // Rate 1 - 4 Hz
       updateLFO2();
       break;
 

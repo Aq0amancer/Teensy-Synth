@@ -9,6 +9,8 @@
 #include "global_variables.h"
 #include "Wire.h"
 #include <SPI.h>
+#include <MIDI.h>
+#include <SerialFlash.h>
 
 // Debugging functions
 //////////////////////////////////////////////////////////////////////
@@ -224,7 +226,12 @@ void setup() {
   MIDI.setHandleControlChange(OnControlChange);
   MIDI.setHandlePitchBend(OnPitchChange);
   MIDI.setHandleAfterTouchChannel(OnAfterTouch);
- 
+
+
+  usbMIDI.setHandleNoteOff(OnNoteOff);
+  usbMIDI.setHandleNoteOn(OnNoteOn);
+  usbMIDI.setHandleControlChange(OnControlChange);
+  usbMIDI.setHandlePitchChange(OnPitchChange);
   delay(1000);
 
   SYNTH_SERIAL.println();
@@ -241,6 +248,8 @@ void setup() {
 
 void loop() {
   MIDI.read();
+  usbMIDI.read();
+
 
 #if SYNTH_DEBUG > 0
   performanceCheck();
@@ -258,7 +267,7 @@ void checkMux() {
   static int muxValues2[MnumControls] = {};
   static int muxValues3[MnumControls] = {};
   static int muxValues4[MnumControls] = {};
-  static int controlThresh= 7;
+  static int controlThresh= 2;
   unsigned long currentMicros = micros();
   static unsigned long LFOtime = 0;
 
@@ -353,6 +362,7 @@ void checkMux() {
           break;
         case 5:
           OnControlChange(SYNTH_MIDICHANNEL, CC_PWM2, muxRead3);
+                  SYNTH_SERIAL.println((String) analogRead(MXIN3));
           break;
         case 6:
           OnControlChange(SYNTH_MIDICHANNEL, CC_Oscmix, muxRead3);
